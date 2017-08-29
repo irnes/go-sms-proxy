@@ -1,0 +1,11 @@
+hash: c507763a2f46c7f902e0865d6527e0d83e3256ee700c919fdaef01de09c14f9e
+updated: 2017-08-24T20:21:47.144179109+02:00
+imports:
+- name: github.com/ant0ine/go-json-rest
+  version: 731ccde05312e2c1f5578a504ea8e77d38020340
+  subpackages:
+  - rest
+  - rest/trie
+- name: github.com/messagebird/go-rest-api
+  version: a505e01a7789c134e09737b4ed78aff748848259
+testImports: []

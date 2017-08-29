@@ -1,0 +1,1 @@
+## REST API for SMS application with GO using messagebird gateway

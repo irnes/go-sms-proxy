@@ -11,6 +11,7 @@ import (
 	"github.com/messagebird/go-rest-api"
 
 	"mbsms-api/app"
+	"mbsms-api/app/service"
 )
 
 func main() {
@@ -23,7 +24,7 @@ func main() {
 	// Create an instnace of messagebird sms client
 	//smsClient := messagebird.New("j5ONQuMMG09WNSaFvZawtoWvc")
 	smsClient := messagebird.New("test_mCqng0op0JjXkPNe5jEkHZcaO")
-	smsSender := app.NewSMSSender(smsClient)
+	smsSender := service.NewSMSSender(smsClient)
 
 	// Start application using provided SMS sender
 	smsApp := app.New(smsSender)

@@ -6,10 +6,13 @@ import (
 	"net/http"
 
 	"github.com/ant0ine/go-json-rest/rest"
+
+	"mbsms-api/app/handler"
+	"mbsms-api/app/service"
 )
 
 // New creates a new app instance
-func New(sender Sender) *App {
+func New(sender service.Sender) *App {
 	app := &App{SMSSender: sender}
 	app.init()
 
@@ -18,7 +21,7 @@ func New(sender Sender) *App {
 
 // App has api router and sms worker instances
 type App struct {
-	SMSSender Sender
+	SMSSender service.Sender
 
 	api    *rest.Api
 	server *http.Server
@@ -43,17 +46,7 @@ func (a *App) setRouter() {
 
 // PostMessage handles post message requests
 func (a *App) PostMessage(w rest.ResponseWriter, r *rest.Request) {
-	payload := &BaseMessage{}
-	err := r.DecodeJsonPayload(payload)
-	if err != nil {
-		rest.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	respChan := a.SMSSender.Send(payload)
-	response := <-respChan
-
-	w.WriteJson(&response)
+	handler.PostMessage(a.SMSSender, w, r)
 }
 
 // Run starts serving the REST API

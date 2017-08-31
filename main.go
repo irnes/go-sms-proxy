@@ -27,6 +27,9 @@ func main() {
 	provider := service.NewMBProvider(client)
 	service := service.NewSMSService(provider)
 
+	// Print account balance information
+	service.Balance()
+
 	// Start application using provided SMS service
 	smsApp := app.New(service)
 	go smsApp.Run(":8080")
@@ -35,16 +38,11 @@ func main() {
 	<-stop
 
 	log.Println("Shutting down the server...")
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), 1*time.Second)
 	service.Terminate()
-	//smsApp.Shutdown(ctx)
+	smsApp.Shutdown(ctx)
 	_ = ctx
 
 	time.Sleep(1 * time.Second)
 	log.Println("Server gracefully stopped")
 }
-
-//cudh := [5]byte{0x48, 0x65, 0x6c, 0x6c, 0x6f}
-// udh := NewUserDataHeader()
-// fmt.Printf("%x\n", udh)
-// fmt.Printf("%x\n", udh)

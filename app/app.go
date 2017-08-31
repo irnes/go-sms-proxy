@@ -29,7 +29,7 @@ type App struct {
 
 func (a *App) init() {
 	a.api = rest.NewApi()
-	a.api.Use(rest.DefaultDevStack...)
+	a.api.Use(rest.DefaultProdStack...)
 	a.setRouter()
 
 	a.http = &http.Server{}
@@ -38,18 +38,13 @@ func (a *App) init() {
 
 func (a *App) setRouter() {
 	router, err := rest.MakeRouter(
-		rest.Post("/messages", a.PostMessage),
+		rest.Post("/messages", handler.PostMessage(a.sms)),
 	)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 	a.api.SetApp(router)
-}
-
-// PostMessage handles post message requests
-func (a *App) PostMessage(w rest.ResponseWriter, r *rest.Request) {
-	handler.PostMessage(a.sms, w, r)
 }
 
 // Run starts serving the REST API

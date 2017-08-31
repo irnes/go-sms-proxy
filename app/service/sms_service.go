@@ -15,6 +15,7 @@ type Response interface{}
 
 // SMSProvider defines an interface for SMS Sender
 type SMSProvider interface {
+	Balance()
 	Send(*model.BaseMessage) <-chan Response
 	Terminate()
 }

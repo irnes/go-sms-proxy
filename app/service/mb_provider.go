@@ -2,7 +2,6 @@ package service
 
 import (
 	"log"
-	"strconv"
 	"sync"
 	"time"
 
@@ -56,7 +55,7 @@ func (m *MBProvider) doSend(bm *model.BaseMessage) Response {
 
 	totalparts := len(cm.MessageParts)
 	originator := bm.Originator
-	recipients := []string{strconv.Itoa(bm.Recipient)}
+	recipients := []string{bm.Recipient}
 
 	// allow only one call per second towards the external SMS API
 	throttle := time.Tick(1 * time.Second)
@@ -88,7 +87,7 @@ func (m *MBProvider) doSend(bm *model.BaseMessage) Response {
 			// perform actual sending
 			response, err := m.Client.NewMessage(originator, recipients, message.Body, params)
 			if err != nil {
-				log.Fatal(err)
+				log.Print("Error: ", err)
 			}
 			log.Printf("\n%+v\n", response)
 		}(mpart)
@@ -98,6 +97,22 @@ func (m *MBProvider) doSend(bm *model.BaseMessage) Response {
 	wg.Wait()
 
 	return "Done"
+}
+
+// Balance returns the account balance information
+func (m *MBProvider) Balance() {
+	// Request the balance information, returned as a Balance object.
+	balance, err := m.Client.Balance()
+	if err != nil {
+		// messagebird.ErrResponse means custom JSON errors.
+		if err == messagebird.ErrResponse {
+			for _, mbError := range balance.Errors {
+				log.Printf("Error: %#v\n", mbError)
+			}
+		}
+		return
+	}
+	log.Printf("Balance: %+v\n", balance)
 }
 
 // Send encapsulates given base message into the Request

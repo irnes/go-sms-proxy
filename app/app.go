@@ -12,8 +12,8 @@ import (
 )
 
 // New creates a new app instance
-func New(sender service.Sender) *App {
-	app := &App{SMSSender: sender}
+func New(sms *service.SMSService) *App {
+	app := &App{sms: sms}
 	app.init()
 
 	return app
@@ -21,16 +21,19 @@ func New(sender service.Sender) *App {
 
 // App has api router and sms worker instances
 type App struct {
-	SMSSender service.Sender
+	sms *service.SMSService
 
-	api    *rest.Api
-	server *http.Server
+	api  *rest.Api
+	http *http.Server
 }
 
 func (a *App) init() {
 	a.api = rest.NewApi()
 	a.api.Use(rest.DefaultDevStack...)
 	a.setRouter()
+
+	a.http = &http.Server{}
+	a.http.Handler = a.api.MakeHandler()
 }
 
 func (a *App) setRouter() {
@@ -46,23 +49,22 @@ func (a *App) setRouter() {
 
 // PostMessage handles post message requests
 func (a *App) PostMessage(w rest.ResponseWriter, r *rest.Request) {
-	handler.PostMessage(a.SMSSender, w, r)
+	handler.PostMessage(a.sms, w, r)
 }
 
 // Run starts serving the REST API
 func (a *App) Run(host string) {
 	log.Printf("Listening on http://0.0.0.0%s\n", host)
-	a.server = &http.Server{Addr: host}
-	a.server.Handler = a.api.MakeHandler()
-	if err := a.server.ListenAndServe(); err != nil {
+	a.http.Addr = host
+	if err := a.http.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
 }
 
-// Shutdown gracefully shuts down the sms worker and
+// Shutdown gracefully shuts down the sms provider and
 // API server without interrupting any active request
 func (a *App) Shutdown(ctx context.Context) error {
-	a.server.Shutdown(ctx)
+	//a.http.Shutdown(ctx)
 
 	for {
 		select {

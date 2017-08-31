@@ -22,12 +22,13 @@ func main() {
 	signal.Notify(stop, os.Interrupt, os.Kill)
 
 	// Create an instnace of messagebird sms client
-	//smsClient := messagebird.New("j5ONQuMMG09WNSaFvZawtoWvc")
-	smsClient := messagebird.New("test_mCqng0op0JjXkPNe5jEkHZcaO")
-	smsSender := service.NewSMSSender(smsClient)
+	//client := messagebird.New("j5ONQuMMG09WNSaFvZawtoWvc")
+	client := messagebird.New("test_mCqng0op0JjXkPNe5jEkHZcaO")
+	provider := service.NewMBProvider(client)
+	service := service.NewSMSService(provider)
 
-	// Start application using provided SMS sender
-	smsApp := app.New(smsSender)
+	// Start application using provided SMS service
+	smsApp := app.New(service)
 	go smsApp.Run(":8080")
 
 	// Wait for shutdown signal and react
@@ -35,7 +36,7 @@ func main() {
 
 	log.Println("Shutting down the server...")
 	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
-	smsSender.Terminate()
+	service.Terminate()
 	//smsApp.Shutdown(ctx)
 	_ = ctx
 

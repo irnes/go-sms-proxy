@@ -10,8 +10,8 @@ import (
 	"mbsms-api/app/util"
 )
 
-// PostMessage send provided text through a SMS gateway
-func PostMessage(SMSSender service.Sender, w rest.ResponseWriter, r *rest.Request) {
+// PostMessage send provided text through given SMS service
+func PostMessage(sms *service.SMSService, w rest.ResponseWriter, r *rest.Request) {
 	payload := &model.BaseMessage{}
 	err := r.DecodeJsonPayload(payload)
 	if err != nil {
@@ -38,7 +38,8 @@ func PostMessage(SMSSender service.Sender, w rest.ResponseWriter, r *rest.Reques
 		return
 	}
 
-	respChan := SMSSender.Send(payload)
+	// send text message through given SMS service
+	respChan := sms.Send(payload)
 	response := <-respChan
 
 	w.WriteJson(&response)

@@ -10,13 +10,12 @@ import (
 	"mbsms-api/app/service"
 )
 
+// FakeSMSProvider for testing purpose
 type FakeSMSProvider struct {
 	response service.Response
 }
 
-func (f *FakeSMSProvider) Balance()   {}
-func (f *FakeSMSProvider) Terminate() {}
-
+func (f *FakeSMSProvider) Balance() {}
 func (f *FakeSMSProvider) Send(bm *model.BaseMessage) <-chan service.Response {
 	respChan := make(chan service.Response, 1)
 

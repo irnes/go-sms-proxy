@@ -34,31 +34,35 @@ func init() {
 func main() {
 	fmt.Println("### SMS REST API ###")
 
+	ctx, cancel := context.WithCancel(context.Background())
 	// Set up monitoring of operating system signals
 	stop := make(chan os.Signal)
 	signal.Notify(stop, os.Interrupt, os.Kill)
 
 	// Create an instnace of messagebird sms client
-	//client := messagebird.New("j5ONQuMMG09WNSaFvZawtoWvc")
 	client := messagebird.New(conf.apikey)
-	smsProvider := service.NewMBProvider(client)
+	smsProvider := service.NewMBProvider(ctx, client)
 	smsService := service.NewSMSService(smsProvider)
 
 	// Print account balance information
 	smsService.Balance()
 
 	// Start application using provided SMS service
+	// and listen on all host ifaces
 	smsApp := app.New(smsService)
-	go smsApp.Run(":" + strconv.Itoa(conf.port)) // listen on all host ifaces
+	go smsApp.Run("0.0.0.0" + ":" + strconv.Itoa(conf.port))
 
 	// Wait for shutdown signal and react
 	<-stop
 
 	log.Println("Shutting down the server...")
-	ctx, _ := context.WithTimeout(context.Background(), 1*time.Second)
-	smsService.Terminate()
-	smsApp.Shutdown(ctx)
-	_ = ctx
+
+	// stop http server
+	lastctx, _ := context.WithTimeout(ctx, 1*time.Second)
+	smsApp.Shutdown(lastctx)
+
+	cancel()
+	time.Sleep(1 * time.Second)
 
 	log.Println("Server gracefully stopped")
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"log"
 	"sync"
 	"sync/atomic"
@@ -13,15 +14,14 @@ import (
 )
 
 // NewMBProvider creates an instance of MBProvider object using provider's client
-func NewMBProvider(client *messagebird.Client) *MBProvider {
+func NewMBProvider(ctx context.Context, client *messagebird.Client) *MBProvider {
 	provider := &MBProvider{
 		Client:  client,
-		Done:    make(chan bool, 0),
 		ReqChan: make(chan Request, 10),
 	}
 
 	// start provider worker
-	go provider.run()
+	go provider.run(ctx)
 
 	return provider
 }
@@ -30,17 +30,16 @@ func NewMBProvider(client *messagebird.Client) *MBProvider {
 // that uses MessageBird client as an SMS gateway
 type MBProvider struct {
 	Client  *messagebird.Client
-	Done    chan bool
 	ReqChan chan Request
 }
 
 // Run will make the MBProvider starts listening to the two channels Done and ReqChan
-func (m *MBProvider) run() {
+func (m *MBProvider) run(ctx context.Context) {
 	for {
 		select {
-		case <-m.Done:
+		case <-ctx.Done():
 			close(m.ReqChan)
-			log.Println("Terminating SMS Worker ...")
+			log.Println("Terminating SMS Provider ...")
 			return
 		case req := <-m.ReqChan:
 			// process message request and write response to response channel
@@ -89,12 +88,13 @@ func (m *MBProvider) doSend(bm *model.BaseMessage) Response {
 			}
 
 			// perform actual sending
-			response, err := m.Client.NewMessage(originator, recipients, message.Body, params)
+			_, err := m.Client.NewMessage(originator, recipients, message.Body, params)
 			if err != nil {
+				// TODO collect errors and insert them into the response
 				log.Print("Error: ", err)
 			}
+
 			atomic.AddInt32(&totalSent, 1)
-			log.Printf("\n%+v\n", response)
 		}(mpart)
 	}
 
@@ -140,9 +140,4 @@ func (m *MBProvider) Send(bm *model.BaseMessage) <-chan Response {
 	// enqueue request for processing
 	m.ReqChan <- req
 	return req.RspChan
-}
-
-// Terminate SMS worker
-func (m *MBProvider) Terminate() {
-	m.Done <- true
 }

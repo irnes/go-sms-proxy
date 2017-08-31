@@ -17,7 +17,6 @@ type Response interface{}
 type SMSProvider interface {
 	Balance()
 	Send(*model.BaseMessage) <-chan Response
-	Terminate()
 }
 
 // NewSMSService creates new instance of sms service using given provider

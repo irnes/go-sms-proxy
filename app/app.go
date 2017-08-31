@@ -49,7 +49,7 @@ func (a *App) setRouter() {
 
 // Run starts serving the REST API
 func (a *App) Run(host string) {
-	log.Printf("Listening on http://0.0.0.0%s\n", host)
+	log.Printf("Listening on http://%s\n", host)
 	a.http.Addr = host
 	if err := a.http.ListenAndServe(); err != nil {
 		log.Fatal(err)
@@ -59,7 +59,7 @@ func (a *App) Run(host string) {
 // Shutdown gracefully shuts down the sms provider and
 // API server without interrupting any active request
 func (a *App) Shutdown(ctx context.Context) error {
-	//a.http.Shutdown(ctx)
+	//a.http.Shutdown(ctx) // requires golang >= v1.8
 
 	for {
 		select {

@@ -11,7 +11,7 @@ import (
 )
 
 type FakeSMSProvider struct {
-	Err error
+	response service.Response
 }
 
 func (f *FakeSMSProvider) Balance()   {}
@@ -19,8 +19,8 @@ func (f *FakeSMSProvider) Terminate() {}
 
 func (f *FakeSMSProvider) Send(bm *model.BaseMessage) <-chan service.Response {
 	respChan := make(chan service.Response, 1)
-	respChan <- bm
 
+	respChan <- f.response
 	return respChan
 }
 
@@ -36,15 +36,20 @@ func TestPostMessage(t *testing.T) {
 	}{
 		{
 			description: "succesfull post",
-			smsProvider: &FakeSMSProvider{},
-			url:         "/messages",
+			smsProvider: &FakeSMSProvider{
+				response: map[string]interface{}{
+					"Status":         "Success",
+					"TotalSentParts": 1,
+				},
+			},
+			url: "/messages",
 			payload: map[string]interface{}{
 				"recipient":  "31612345678",
 				"originator": "MessageBird",
 				"message":    "This is a test message.",
 			},
 			expectedStatusCode: 200,
-			expectedBody:       "",
+			expectedBody:       `{"Status":"Success","TotalSentParts":1}`,
 		},
 		{
 			description:        "missing payload",

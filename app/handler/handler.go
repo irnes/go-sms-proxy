@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/ant0ine/go-json-rest/rest"
 
@@ -48,8 +47,6 @@ func PostMessage(sms *service.SMSService) rest.HandlerFunc {
 			return
 		}
 
-		time.Sleep(5 * time.Second)
-		log.Print("DO SEND")
 		// send text message through given SMS service
 		respChan := sms.Send(payload)
 		response := <-respChan

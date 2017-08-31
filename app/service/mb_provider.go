@@ -3,6 +3,7 @@ package service
 import (
 	"log"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/messagebird/go-rest-api"
@@ -60,6 +61,9 @@ func (m *MBProvider) doSend(bm *model.BaseMessage) Response {
 	// allow only one call per second towards the external SMS API
 	throttle := time.Tick(1 * time.Second)
 
+	// total number of sent message parts
+	var totalSent int32
+
 	// use a WaitGroup to block until all the message parts are sent
 	var wg sync.WaitGroup
 	for _, mpart := range cm.MessageParts {
@@ -89,6 +93,7 @@ func (m *MBProvider) doSend(bm *model.BaseMessage) Response {
 			if err != nil {
 				log.Print("Error: ", err)
 			}
+			atomic.AddInt32(&totalSent, 1)
 			log.Printf("\n%+v\n", response)
 		}(mpart)
 	}
@@ -96,7 +101,16 @@ func (m *MBProvider) doSend(bm *model.BaseMessage) Response {
 	// wait for all parts to be sent
 	wg.Wait()
 
-	return "Done"
+	if int(totalSent) != len(cm.MessageParts) {
+		return map[string]interface{}{
+			"Status": "Failed",
+		}
+	}
+
+	return map[string]interface{}{
+		"Status":         "Success",
+		"TotalSentParts": totalSent,
+	}
 }
 
 // Balance returns the account balance information

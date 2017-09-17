@@ -58,13 +58,13 @@ func (a *App) Run(host string) {
 
 // Shutdown gracefully shuts down the sms provider and
 // API server without interrupting any active request
-func (a *App) Shutdown(ctx context.Context) error {
+func (a *App) Shutdown(ctx context.Context) {
 	//a.http.Shutdown(ctx) // requires golang >= v1.8
 
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return
 		}
 	}
 }

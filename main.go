@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/messagebird/go-rest-api"
@@ -34,10 +35,11 @@ func init() {
 func main() {
 	fmt.Println("### SMS REST API ###")
 
-	ctx, cancel := context.WithCancel(context.Background())
 	// Set up monitoring of operating system signals
 	stop := make(chan os.Signal)
-	signal.Notify(stop, os.Interrupt, os.Kill)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+
+	ctx, cancel := context.WithCancel(context.Background())
 
 	// Create an instnace of messagebird sms client
 	client := messagebird.New(conf.apikey)
@@ -50,19 +52,16 @@ func main() {
 	// Start application using provided SMS service
 	// and listen on all host ifaces
 	smsApp := app.New(smsService)
-	go smsApp.Run("0.0.0.0" + ":" + strconv.Itoa(conf.port))
+	go smsApp.Run("127.0.0.1" + ":" + strconv.Itoa(conf.port))
 
 	// Wait for shutdown signal and react
 	<-stop
+	// stop http server
+	go smsApp.Shutdown(ctx)
 
 	log.Println("Shutting down the server...")
-
-	// stop http server
-	lastctx, _ := context.WithTimeout(ctx, 1*time.Second)
-	smsApp.Shutdown(lastctx)
-
 	cancel()
-	time.Sleep(1 * time.Second)
 
+	time.Sleep(1 * time.Second)
 	log.Println("Server gracefully stopped")
 }

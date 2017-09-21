@@ -6,8 +6,8 @@ import (
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/ant0ine/go-json-rest/rest/test"
 
-	"mbsms-api/app/model"
-	"mbsms-api/app/service"
+	"go-sms-proxy/app/model"
+	"go-sms-proxy/app/service"
 )
 
 // FakeSMSProvider for testing purpose

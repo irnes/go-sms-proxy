@@ -7,8 +7,8 @@ import (
 
 	"github.com/ant0ine/go-json-rest/rest"
 
-	"mbsms-api/app/handler"
-	"mbsms-api/app/service"
+	"go-sms-proxy/app/handler"
+	"go-sms-proxy/app/service"
 )
 
 // New creates a new app instance

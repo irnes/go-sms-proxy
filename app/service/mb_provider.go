@@ -9,8 +9,8 @@ import (
 
 	"github.com/messagebird/go-rest-api"
 
-	"mbsms-api/app/model"
-	"mbsms-api/app/util"
+	"go-sms-proxy/app/model"
+	"go-sms-proxy/app/util"
 )
 
 // NewMBProvider creates an instance of MBProvider object using provider's client

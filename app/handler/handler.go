@@ -7,9 +7,9 @@ import (
 
 	"github.com/ant0ine/go-json-rest/rest"
 
-	"mbsms-api/app/model"
-	"mbsms-api/app/service"
-	"mbsms-api/app/util"
+	"go-sms-proxy/app/model"
+	"go-sms-proxy/app/service"
+	"go-sms-proxy/app/util"
 )
 
 // PostMessage handles post message requests

@@ -1,21 +1,25 @@
-## MessageBird SMS REST API Client
+## SMS REST API Proxy
 
+Demonstrate a way how to implement a REST API proxy service that provide an
+unique interface for sending SMS messages through various SMS gateways
+
+The current version relies on usage of MessageBird SMS Gateway
 
 ### Help
 ```
-Usage of ./mbsms-api:
+Usage of ./go-sms-proxy
   -apikey string
-    	API Key for MessageBird (default "test_mCqng0op0JjXkPNe5jEkHZcaO")
+    	API Key for SMS Gateway (MessageBird)
   -port int
     	Port to listen (default 8080)
 ```
 
 ### Usage:
-Start REST API service on the local host
+Start REST API proxy service on the local host
 ```
-./mbsms-api -apikey=<apikey>
+./go-sms-proxy -apikey=<apikey>
 ```
 
 and use provided helper script to send a message through REST API service
 ```
-./test/send-sms.sh +38761475148 "This is a test message."
+./test/send-sms.sh +387######## "This is a test message."

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"mbsms-api/app/model"
+	"go-sms-proxy/app/model"
 )
 
 // Request is used for making requests to SMSGateway services

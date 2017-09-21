@@ -13,8 +13,8 @@ import (
 
 	"github.com/messagebird/go-rest-api"
 
-	"mbsms-api/app"
-	"mbsms-api/app/service"
+	"go-sms-proxy/app"
+	"go-sms-proxy/app/service"
 )
 
 // Config holds basic app config
